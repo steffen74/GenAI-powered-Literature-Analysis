@@ -359,12 +359,17 @@ class MyZoteroView(customtkinter.CTkFrame):
 
 
 def update_dotenv(key, new_value):
-    # Read the current contents of the .env file
+    # Check if the .env file exists
     if not os.path.isfile('.env'):
-        with open('.env', 'w'): pass
+        # If it doesn't exist, create it based on the .env_template file
+        with open('.env_template', 'r') as template, open('.env', 'w') as env:
+            env.write(template.read())
 
     with open('.env', 'r') as file:
         lines = [line.strip() for line in file]
+
+    # Load the environment variables from the .env file
+    load_dotenv('.env')
 
     # Check if the key already exists in the file
     key_exists = False
