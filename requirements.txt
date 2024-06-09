@@ -1,7 +1,7 @@
 Pillow~=10.1.0
 PyMuPDF==1.23.6
 PyMuPDFb==1.23.6
-pypdf2~=3.0.1
+PyPDF2~=3.0.1
 reportlab~=4.0.7
 python-docx~=1.1.2
 langchain>=0.0.341,<0.0.355
