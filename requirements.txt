@@ -3,16 +3,14 @@ PyMuPDF==1.23.6
 PyMuPDFb==1.23.6
 pypdf2~=3.0.1
 reportlab~=4.0.7
-docx~=0.2.4
-# pxthon-docx
-langchain~=0.0.341
+python-docx~=1.1.2
+langchain>=0.0.341,<0.0.355
+langchain-core>=0.1.0,<0.2.0
 openai
 tiktoken
 faiss-cpu
-# pypdf2
-pypdf
 customtkinter~=5.2.1
-# docx~=0.2.4
 pyzotero~=1.5.18
 flet~=0.18.0
 python-dotenv~=1.0.0
+# tkinter (install via OS package manager, e.g., 'sudo apt-get install python3-tk' for Ubuntu/Debian)
