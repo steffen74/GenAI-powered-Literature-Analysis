@@ -17,6 +17,8 @@ class GUI(customtkinter.CTk):
         super().__init__(*args, **kwargs)
         if kiosk:
             self.attributes('-fullscreen', True)  # Start in full screen
+            self.attributes('-topmost', True)     # Ensure window is on top
+            self.overrideredirect(True)           # Remove window decorations
             self.protocol("WM_DELETE_WINDOW", self.disable_event)  # Disable close button
         else:
             self.geometry("1200x750")  # Adjusted size for better visibility
@@ -367,17 +369,9 @@ class MyZoteroView(customtkinter.CTkFrame):
 
 
 def update_dotenv(key, new_value):
-    # Check if the .env file exists
-    if not os.path.isfile('.env'):
-        # If it doesn't exist, create it based on the .env_template file
-        with open('.env_template', 'r') as template, open('.env', 'w') as env:
-            env.write(template.read())
 
     with open('.env', 'r') as file:
         lines = [line.strip() for line in file]
-
-    # Load the environment variables from the .env file
-    load_dotenv('.env')
 
     # Check if the key already exists in the file
     key_exists = False
