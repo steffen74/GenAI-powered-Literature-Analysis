@@ -17,7 +17,7 @@ class GUI(customtkinter.CTk):
         super().__init__(*args, **kwargs)
         if kiosk:
             self.attributes('-fullscreen', True)  # Start in full screen
-            self.attributes('-topmost', True)     # Ensure window is on top
+            # self.attributes('-topmost', True)     # Ensure window is on top
             # self.protocol("WM_DELETE_WINDOW", self.disable_event)  # Disable close button
         else:
             self.geometry("1200x750")  # Adjusted size for better visibility
