@@ -219,7 +219,7 @@ class MySettingsView(customtkinter.CTkFrame):
             input_text = user_input.get_input()
             update_dotenv("OPEN_AI_API_KEY", input_text)
             load_dotenv(override=True)
-            self.label_openAI_api_key.configure(text=input_text)
+            self.label_openAI_api_key.configure(text='***********')
 
     def request_Zotero_API_key(self):
         # Ask the user for input text
@@ -229,7 +229,7 @@ class MySettingsView(customtkinter.CTkFrame):
             input_text = user_input.get_input()
             update_dotenv("ZOTERO_API_KEY", input_text)
             load_dotenv(override=True)
-            self.label_zotero_api_key.configure(text=os.environ.get('ZOTERO_API_KEY'))
+            self.label_zotero_api_key.configure(text='***********')
 
     def request_Zotero_user_id(self):
         # Ask the user for input text
