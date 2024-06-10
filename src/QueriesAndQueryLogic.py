@@ -4,8 +4,8 @@ import platform
 # Monkey-patch pwd module on Windows to avoid "ImportError: No module named pwd"
 # for langchain.document_loaders
 if platform.system() == 'Windows':
-    import pwd_compat
-    sys.modules['pwd'] = pwd_compat.pwd
+    import src.pwd_compat
+    sys.modules['pwd'] = src.pwd_compat.pwd
 
 import PyPDF2
 from langchain.chains.question_answering import load_qa_chain
