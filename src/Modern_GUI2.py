@@ -13,9 +13,14 @@ pdf_paths = []
 
 
 class GUI(customtkinter.CTk):
-    def __init__(self):
-        super().__init__()
-        self.geometry("1200x750")  # Adjusted size for better visibility
+    def __init__(self, kiosk=False, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        if kiosk:
+            self.attributes('-fullscreen', True)  # Start in full screen
+            self.protocol("WM_DELETE_WINDOW", self.disable_event)  # Disable close button
+        else:
+            self.geometry("1200x750")  # Adjusted size for better visibility
+
         self.grid_rowconfigure(1, weight=1)
         self.grid_columnconfigure(1, weight=1)
 
@@ -42,6 +47,9 @@ class GUI(customtkinter.CTk):
         self.last_frame.grid_columnconfigure(1, weight=1)
         self.create_last_frame_elements()
 
+    def disable_event(self):
+        pass  # Do nothing when close button is clicked
+    
     def create_last_frame_elements(self):
         # TODO add different output format options
         # label_dropdown_output_format = customtkinter.CTkLabel(self.dropdown_frame, text="Select Output Format:")
