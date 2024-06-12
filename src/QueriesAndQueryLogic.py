@@ -1,10 +1,13 @@
 import sys
 import platform
+import os
+import subprocess
 
 # Monkey-patch pwd module on Windows to avoid "ImportError: No module named pwd"
 # for langchain.document_loaders
 if platform.system() == 'Windows':
     import src.pwd_compat
+
     sys.modules['pwd'] = src.pwd_compat.pwd
 
 import PyPDF2
@@ -35,6 +38,7 @@ from PIL import Image
 
 load_dotenv(override=True)
 os.environ["OPENAI_API_KEY"] = os.environ.get("OPEN_AI_API_KEY")
+model = "gpt-4o"
 
 queries = [
     "What is the publication about? Is it a new method, framework or algorithm, is it an extension of a method, framework or algorithm? Is it a Literature Review? If it is none of the above reason what the publication is about.",
@@ -51,8 +55,8 @@ def generate_summary(documents):
     load_dotenv(override=True)
     os.environ["OPENAI_API_KEY"] = os.environ.get("OPEN_AI_API_KEY")
 
-    llm = ChatOpenAI(model_name="gpt-4", temperature=0)
-    #llm = OpenAI()
+    llm = ChatOpenAI(model_name=model, temperature=0)
+    # llm = OpenAI()
     chain = load_summarize_chain(llm, chain_type="map_reduce", verbose=False)
     summary = chain.run(documents)
     return summary
@@ -62,9 +66,9 @@ def generate_short_summary(text):
     load_dotenv(override=True)
     os.environ["OPENAI_API_KEY"] = os.environ.get("OPEN_AI_API_KEY")
 
-    prompt = ChatPromptTemplate.from_template("Summarize this text in no more than 25 words: {text}?")
-    llm = ChatOpenAI(model_name="gpt-4", temperature=0)
-    #llm = OpenAI()
+    prompt = ChatPromptTemplate.from_template("Summarize this text")# in no more than 25 words: {text}?")
+    llm = ChatOpenAI(model_name=model, temperature=0)
+    # llm = OpenAI()
     chain = LLMChain(llm=llm, prompt=prompt)
     response = chain.run(text)
     return response
@@ -81,8 +85,8 @@ def get_metadata_from_llm(db, keys):
     os.environ["OPENAI_API_KEY"] = os.environ.get("OPEN_AI_API_KEY")
 
     llm_metadata = {}
-    llm = ChatOpenAI(model_name="gpt-4", temperature=0)
-    #llm = OpenAI()
+    llm = ChatOpenAI(model_name=model, temperature=0)
+    # llm = OpenAI()
     chain = load_qa_chain(llm=llm, chain_type="stuff")
 
     for key in keys:
@@ -97,8 +101,8 @@ def answer_query(documents, query):
     load_dotenv(override=True)
     os.environ["OPENAI_API_KEY"] = os.environ.get("OPEN_AI_API_KEY")
 
-    llm = ChatOpenAI(model_name="gpt-4", temperature=0)
-    #llm = OpenAI()
+    llm = ChatOpenAI(model_name=model, temperature=0)
+    # llm = OpenAI()
     chain = load_qa_chain(llm=llm, chain_type="stuff")
     answer = chain.run(input_documents=documents, question=query)
     return answer
@@ -189,23 +193,23 @@ def save_text_in_doc(reviews: list, output_directory, updateGUI_func, multi_outp
         doc.add_paragraph()
 
         # Add short summary to document
-        p = doc.add_paragraph()
-        p.add_run("Short Summary:").bold = True
-        p.alignment = WD_PARAGRAPH_ALIGNMENT.LEFT
+        #p = doc.add_paragraph()
+        #p.add_run("Short Summary:").bold = True
+        #p.alignment = WD_PARAGRAPH_ALIGNMENT.LEFT
 
-        p = doc.add_paragraph(review["body"]["short_summary"])
-        p.alignment = WD_PARAGRAPH_ALIGNMENT.JUSTIFY
+        #p = doc.add_paragraph(review["body"]["short_summary"])
+        #p.alignment = WD_PARAGRAPH_ALIGNMENT.JUSTIFY
 
         # Add summary to document
-        p = doc.add_paragraph()
-        p.add_run("Summary:").bold = True
-        p.alignment = WD_PARAGRAPH_ALIGNMENT.LEFT
+        #p = doc.add_paragraph()
+        #p.add_run("Summary:").bold = True
+        #p.alignment = WD_PARAGRAPH_ALIGNMENT.LEFT
 
-        p = doc.add_paragraph(review["body"]["summary"])
-        p.alignment = WD_PARAGRAPH_ALIGNMENT.JUSTIFY
+        #p = doc.add_paragraph(review["body"]["summary"])
+        #p.alignment = WD_PARAGRAPH_ALIGNMENT.JUSTIFY
 
         # Add an additional line break
-        doc.add_paragraph()
+        #doc.add_paragraph()
 
         # Add queries and answers to the document
         for query, answer, found_on_page in review["body"]["queries_and_answers"]:
@@ -251,11 +255,31 @@ def save_text_in_doc(reviews: list, output_directory, updateGUI_func, multi_outp
 
     if not multi_output:
         timestamp = datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
-        doc.save(f"{output_directory}/reviews{timestamp}.docx")
-        print(f"file saved to {output_directory}/reviews{timestamp}.docx")
-        updateGUI_func(f"file saved to {output_directory}/reviews{timestamp}.docx")
+        save_path = f"{output_directory}/reviews{timestamp}.docx"
+        doc.save(save_path)
+        print(f"file saved to {save_path}")
+        updateGUI_func(f"file saved to {save_path}")
+        open_file(save_path)
 
     print("Done!")
+
+
+def open_file(file_path):
+    """
+    Opens a file using the default program associated with the file type on Windows.
+
+    Parameters:
+    file_path (str): The path to the file to be opened.
+    """
+    try:
+        if os.path.exists(file_path):
+            # Using start command to open the file with the default application
+            subprocess.run(['start', '', file_path], shell=True, check=True)
+            print(f"File {file_path} opened successfully.")
+        else:
+            print(f"File {file_path} does not exist.")
+    except subprocess.CalledProcessError as e:
+        print(f"Failed to open file {file_path}. Error: {e}")
 
 
 def get_documents_from_pdf(pdf_path, chunk_size_chars, overlap):
@@ -336,25 +360,26 @@ def review_paper(path, queries, updateGUI_func):
     if (missing_keys):
         updateGUI_func("Trying to get missing metadata from llm...")
         print("Trying to get missing metadata from llm...")
-        #ask specifically about title and only send the first two document, if title was not in metadata. This is to avoid retrieval of the wrong documents, assuming that the title is in the first two documents.
+        # ask specifically about title and only send the first two document, if title was not in metadata. This is to avoid retrieval of the wrong documents, assuming that the title is in the first two documents.
         if "title" in missing_keys:
-            title= answer_query([documents[0],documents[1]],"what is the title of this text? reply only with the title, not in a sentence. If you don't know, reply with 'not found'.")
-            #remove title from missing keys
+            title = answer_query([documents[0], documents[1]],
+                                 "what is the title of this text? reply only with the title, not in a sentence. If you don't know, reply with 'not found'.")
+            # remove title from missing keys
             missing_keys.remove("title")
-            #add title to found metadata
-            matching_pdf_meta.update({"title":title})
+            # add title to found metadata
+            matching_pdf_meta.update({"title": title})
         # ask about remaining missing metadata with retrieval
         llm_metadata = get_metadata_from_llm(db, missing_keys)
 
     # generate long summary
-    updateGUI_func("Generating summary. This can take a while...")
-    print("Generating summary. This can take a while...")
-    summary = generate_summary(get_documents_from_pdf(path, 4000, 200))
+    #updateGUI_func("Generating summary. This can take a while...")
+    #print("Generating summary. This can take a while...")
+    #summary = generate_summary(get_documents_from_pdf(path, 4000, 200))
 
     # generate short summary from long summary
-    updateGUI_func("Generating short summary...")
-    print("Generating short summary...")
-    short_summary = generate_short_summary(summary)
+    #updateGUI_func("Generating short summary...")
+    #print("Generating short summary...")
+    #short_summary = generate_short_summary(summary)
 
     # answer user quries
     updateGUI_func("Answering queries. this can take a while...")
@@ -384,8 +409,8 @@ def review_paper(path, queries, updateGUI_func):
             "read_time": read_time,
         },
         "body": {
-            "summary": summary,
-            "short_summary": short_summary,
+            #"summary": summary,
+            #"short_summary": short_summary,
             "queries_and_answers": queries_and_answers,
         },
         "images": images,
