@@ -16,8 +16,3 @@ def open_file(file_path):
             print(f"File {file_path} does not exist.")
     except subprocess.CalledProcessError as e:
         print(f"Failed to open file {file_path}. Error: {e}")
-
-
-# Example usage:
-file_path = r'C:\Users\Kaan Apaydin\Downloads\main.pdf'
-open_file(file_path)
