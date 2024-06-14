@@ -259,7 +259,7 @@ def save_text_in_doc(reviews: list, output_directory, updateGUI_func, multi_outp
         doc.save(save_path)
         print(f"file saved to {save_path}")
         updateGUI_func(f"file saved to {save_path}")
-        open_file(save_path)
+        open_file_linux(save_path)
 
     print("Done!")
 
@@ -281,6 +281,22 @@ def open_file(file_path):
     except subprocess.CalledProcessError as e:
         print(f"Failed to open file {file_path}. Error: {e}")
 
+def open_file_linux(file_path):
+    """
+    Opens a file using the default program associated with the file type on Ubuntu Linux.
+
+    Parameters:
+    file_path (str): The path to the file to be opened.
+    """
+    try:
+        if os.path.exists(file_path):
+            # Using xdg-open command to open the file with the default application
+            subprocess.run(['xdg-open', file_path], check=True)
+            print(f"File {file_path} opened successfully.")
+        else:
+            print(f"File {file_path} does not exist.")
+    except subprocess.CalledProcessError as e:
+        print(f"Failed to open file {file_path}. Error: {e}")
 
 def get_documents_from_pdf(pdf_path, chunk_size_chars, overlap):
     """
